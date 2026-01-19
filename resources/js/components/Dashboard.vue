@@ -2,6 +2,18 @@
     <div class="max-w-6xl mx-auto p-6">
         <h1 class="text-2xl font-semibold mb-4">Orders Dashboard</h1>
 
+        <div class="mb-4 flex gap-4">
+            <label class="mr-2">Status:</label>
+            <select v-model="status" @change="fetchOrders">
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+
         <div v-if="orders.length === 0" class="p-4 text-gray-600">
             No orders found.
         </div>
@@ -44,23 +56,31 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
-const orders = ref([]); // always an array
+const orders = ref([]);
+const status = ref("");
 
 function formatDate(value) {
     if (!value) return "—";
     return new Date(value).toLocaleString();
 }
 
-onMounted(async () => {
+async function fetchOrders() {
     try {
-        const res = await fetch("/api/orders", {
-            headers: { Accept: "application/json" },
-        });
+        const params = new URLSearchParams();
+
+        if (status.value) params.set("status", status.value);
+
+        const url = `/api/orders?${params.toString()}`;
+
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
         const json = await res.json();
+
         orders.value = json.data ?? [];
     } catch (e) {
-        console.error(e);
+        // console.error(e);
         orders.value = [];
     }
-});
+}
+
+onMounted(fetchOrders);
 </script>

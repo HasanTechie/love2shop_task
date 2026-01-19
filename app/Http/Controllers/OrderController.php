@@ -4,20 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
+use App\Services\Orders\OrderService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
+    public function __construct(protected OrderService $orderService)
+    {
+    }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
-        $orders = Order::with('customer')
-            ->latest()
-            ->paginate(20);
+        $request->validate([
+            'status' => ['nullable', Rule::in(Order::STATUSES)],
+        ]);
 
+        $orders = $this->orderService->paginate($request->query());
         return OrderResource::collection($orders);
     }
 
