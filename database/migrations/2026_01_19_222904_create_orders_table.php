@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Customer::class);
+            $table->foreignIdFor(Customer::class)->constrained()->cascadeOnDelete();
             $table->string('item');
             $table->unsignedInteger('quantity');
             $table->string('status')->default('pending')->index();

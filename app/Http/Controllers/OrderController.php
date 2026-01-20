@@ -65,6 +65,13 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         //
+        $data = $request->validate([
+            'status' => ['required', Rule::in(Order::STATUSES)],
+        ]);
+
+        $updated = $this->orderService->updateStatus($order, $data['status']);
+
+        return new OrderResource($updated->load('customer'));
     }
 
     /**
